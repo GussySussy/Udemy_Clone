@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column justify-content-start mt-5 align-items-center vh-100">
+  <div class="card shadow-lg rounded-3" style="width: 18rem">
+    <div class="card-body d-flex flex-column p-4">
+      <h5 class="card-title mx-auto mb-3">Sign Up</h5>
+      <form method="POST" id="sign-up-form" action="{% url 'users:sign_up' %}{% if next_url %}?next={{ next_url }}{% endif %}">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label fw-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Submit</button>
+        {% if error %}
+          <div>
+            <p class="text-danger mt-3">{{ error }}</p>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

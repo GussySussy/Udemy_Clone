@@ -1,0 +1,26 @@
+{%extends 'core/base.html' %} 
+
+{%block title%}Instructor{%endblock%}
+
+{%block content%}
+
+<div class="container h-50 w-50 mt-5 shadow-lg p-5 rounded-5">
+    <div class="d-flex justify-content-center">
+        <h1 class="text-primary fw-bold">Course Creation Form</h1>
+    </div>
+    <form method="POST" enctype="multipart/form-data" id="course-creation-form" action="{% url 'instructor:home' %}">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+            <label for="{{field.id_for_label}}" class="form-label">{{field.name|title}}</label>
+            {{field}}
+            {{field.errors}}
+        </div>
+        {%endfor%}
+        <div class="d-flex justify-content-center mt-5">
+            <button type="submit" class="btn btn-primary btn-lg p-2">Create</button>
+        </div>
+</form>
+</div>
+
+{%endblock%}
