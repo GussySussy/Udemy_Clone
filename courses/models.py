@@ -68,7 +68,7 @@ class Section(models.Model):
     sequence = models.IntegerField(verbose_name="the section number or sequence number")
     title = models.CharField(max_length=150)
     tot_time = models.IntegerField(
-        verbose_name="total time taken to complete the section"
+        verbose_name="total time taken to complete the section", default=0
     )
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="sections"
@@ -79,12 +79,22 @@ class Section(models.Model):
         time = 0
         chapters = self.chapters.all()
         for chapter in chapters:
-            time += chapter.time
+            time += chapter.time if chapter.time else 0
         return time
 
     def save(self, *args, **kwargs):
+        if self._state.adding:
+            last_section = (
+                Section.objects.filter(course=self.course).order_by("sequence").last()
+            )
+            if last_section:
+                self.sequence = last_section.sequence + 1
+            else:
+                self.sequence = 1
+
+        super(Section, self).save(*args, **kwargs)
         self.tot_time = self.calc_time()
-        super(Section, self).save(**args, **kwargs)
+        super(Section, self).save(update_fields=["tot_time"])
 
     def time_taken(self):
         return f"{self.tot_time//60}hr {self.tot_time%60}min" if self.tot_time else "0s"
@@ -97,13 +107,18 @@ class Section(models.Model):
 
 
 class Chapter(models.Model):
-    order = models.IntegerField(verbose_name="order number of the chapter in a lesson")
+    order = models.PositiveIntegerField(
+        verbose_name="order number of the chapter in a lesson"
+    )
     title = models.CharField(max_length=150)
-    time = models.IntegerField()
+    time = models.IntegerField(default=0)  # Set a default value to avoid None
     section = models.ForeignKey(
         Section, on_delete=models.CASCADE, related_name="chapters"
     )
-    video = models.FileField(upload_to="chapter_video_upload_to", blank=False, null=True)
+    video = models.FileField(
+        upload_to="chapter_video_upload_to", blank=False, null=True
+    )
+    content = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.title

@@ -1,5 +1,6 @@
 from django import forms
 from courses.models import *
+from django.forms import inlineformset_factory
 
 
 class CourseForm(forms.ModelForm):
@@ -44,24 +45,17 @@ class CourseForm(forms.ModelForm):
 
 
 class SectionForm(forms.ModelForm):
-
     class Meta:
         model = Section
-        fields = ["sequence", "title", "description"]
-        widgets = {
-            "sequence": forms.NumberInput(
-                attrs={
-                    "class": "form-control",
-                    "type": "number",
-                }
-            ),
-            "description": forms.Textarea(
-                attrs={"class": "form-control", "type": "text", "rows": "3"}
-            ),
-            "title": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "type": "text",
-                }
-            ),
-        }
+        fields = ["title", "description"]
+
+
+class ChapterForm(forms.ModelForm):
+    class Meta:
+        model = Chapter
+        fields = ["title", "content", "video", "order"]
+
+
+ChapterFormSet = inlineformset_factory(
+    Section, Chapter, form=ChapterForm, extra=1, can_order=True, can_delete=True
+)

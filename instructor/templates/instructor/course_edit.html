@@ -1,76 +1,103 @@
-{%extends 'core/base.html' %} {%block title%}Instructor{%endblock%} 
+{% extends 'core/base.html' %}
 
-{%block content%}
+{% block title %}Instructor{% endblock %}
 
+{% block content %}
 <div class="container course-header mt-5">
   <div class="row">
-    <!-- <div class="col">
-            <img src="{{course.thumbnail.url}}" height="300" width="300" alt="course-thumbnail" class="course-image">
-        </div> -->
     <div class="col">
-      <h1 class="course-title">{{course.title}}</h1>
-      <h3 class="text-secondary fw-light course-subtitle">
-        {{course.subtitle}}
-      </h3>
+      <h1 class="course-title">{{ course.title }}</h1>
+      <h3 class="text-secondary fw-light course-subtitle">{{ course.subtitle }}</h3>
     </div>
   </div>
 </div>
+
 <div class="container mt-5">
   <div class="text-center">
     <h1 class="text-secondary fw-bold mb-3">Course Contents</h1>
   </div>
-  <div class="container mt-5">
 
-    <div class="accordion accordion-flush">
-      {%for section in course.sections.all%}
+  <div class="container mt-5">
+    <div class="accordion" id="courseAccordion">
+      {% for section in course.sections.all %}
       <div class="accordion-item">
-        <h2 class="accordion-header">
-          <button
-          class="accordion-button collapsed"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#flush-collapseOne"
-          aria-expanded="false"
-          aria-controls="flush-collapseOne"
-          >
-          {{section.title}}
-        </button>
-      </h2>
-      <div
-      id="flush-collapseOne"
-      class="accordion-collapse collapse"
-      data-bs-parent="#accordionFlushExample"
-      >
-      <div class="accordion-body">{{section.description}}</div>
+        <h2 class="accordion-header" id="headingSection{{ section.id }}">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSection{{ section.id }}" aria-expanded="false" aria-controls="collapseSection{{ section.id }}">
+            {{ section.title }}
+          </button>
+        </h2>
+        <div id="collapseSection{{ section.id }}" class="accordion-collapse collapse" aria-labelledby="headingSection{{ section.id }}" data-bs-parent="#courseAccordion">
+          <div class="accordion-body">
+            <p>{{ section.description }}</p>
+            <form method="post" action="{% url 'instructor:delete_section' section.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">Remove Section</button>
+            </form>
+            <div class="accordion mt-3" id="sectionAccordion{{ section.id }}">
+              {% for chapter in section.chapters.all %}
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingChapter{{ chapter.id }}">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseChapter{{ chapter.id }}" aria-expanded="false" aria-controls="collapseChapter{{ chapter.id }}">
+                    {{ chapter.title }}
+                  </button>
+                </h2>
+                <div id="collapseChapter{{ chapter.id }}" class="accordion-collapse collapse" aria-labelledby="headingChapter{{ chapter.id }}" data-bs-parent="#sectionAccordion{{ section.id }}">
+                  <div class="accordion-body">
+                    <p>{{ chapter.content }}</p>
+                    {% if chapter.video %}
+                    <video controls>
+                      <source src="{{ chapter.video.url }}" type="video/mp4">
+                    </video>
+                    {% endif %}
+                    <form method="post" action="{% url 'instructor:delete_chapter' chapter.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger">Remove Chapter</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingAddChapter{{ section.id }}">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAddChapter{{ section.id }}" aria-expanded="false" aria-controls="collapseAddChapter{{ section.id }}">
+                    <div class="bi-plus-lg me-3"></div> Add Chapter
+                  </button>
+                </h2>
+                <div id="collapseAddChapter{{ section.id }}" class="accordion-collapse collapse" aria-labelledby="headingAddChapter{{ section.id }}" data-bs-parent="#sectionAccordion{{ section.id }}">
+                  <div class="accordion-body">
+                    <form method="post" enctype="multipart/form-data">
+                      {% csrf_token %}
+                      <input type="hidden" name="section_id" value="{{ section.id }}">
+                      {{ chapter_form.as_p }}
+                      <button type="submit" class="btn btn-primary mt-3" name="chapter_submit">Add Chapter</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      <hr class="border border-2 border-secondary">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingAddSection">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAddSection" aria-expanded="false" aria-controls="collapseAddSection">
+            <div class="bi-plus-lg me-3"></div> Add Section
+          </button>
+        </h2>
+        <div id="collapseAddSection" class="accordion-collapse collapse" aria-labelledby="headingAddSection" data-bs-parent="#courseAccordion">
+          <div class="accordion-body">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ section_form.as_p }}
+              <button type="submit" class="btn btn-primary mt-3" name="section_submit">Add Section</button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  {%endfor%}
-  <hr class="border border-2 border-secondary">
-  <div class="accordion-item">
-    <h2 class="accordion-header">
-      <button
-      class="accordion-button collapsed"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#add-section"
-      aria-expanded="false"
-      aria-controls="flush-collapseTwo"
-      >
-      <div class="bi-plus-lg me-3"></div>
-      Add section
-    </button>
-  </h2>
-  <div
-  id="add-section"
-  class="accordion-collapse collapse"
-  data-bs-parent="#accordionFlushExample"
-  >
-  <div class="accordion-body">
-    something
-  </div>
 </div>
-</div>
-</div>
-</div>
-</div>
-{%endblock%}
+
+{% endblock %}
