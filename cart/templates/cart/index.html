@@ -1,0 +1,50 @@
+{% extends 'core/base.html' %}
+
+{% block title %}
+Cart
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="text-center my-5">
+    <h1 class="display-4">Your Cart</h1>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="list-group">
+        {% for item in cart.items.all %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div class="me-3">
+              <img src="{{ item.course.thumbnail.url }}" alt="{{ item.course.title }}" class="img-fluid rounded" style="max-height: 100px;">
+            </div>
+            <div>
+              <h5 class="mb-1">{{ item.course.title }}</h5>
+              <p class="mb-1 text-muted">{{ item.course.subtitle }}</p>
+            </div>
+          </div>
+          <div class="text-end">
+            <form method="post" action="{% url 'remove_from_cart' item.course.cid %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">
+                <i class="bi bi-x-lg"></i> Remove
+              </button>
+            </form>
+          </div>
+        </div>
+        {% empty %}
+        <div class="list-group-item">
+          <div class="row align-items-center">
+            <div class="col text-center">
+              <h4 class="mb-1">Your cart is empty.</h4>
+              <p class="mb-1">Browse our courses and add items to your cart.</p>
+              <a href="{% url 'core:home' %}" class="btn btn-primary mt-3">Browse Courses</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

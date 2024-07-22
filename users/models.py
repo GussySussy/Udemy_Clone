@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from cart.models import Cart
 
 # Create your models here.
 
@@ -13,6 +14,9 @@ class UserManager(BaseUserManager):
         user = self.model(email=email, username=email, **extra_fields)
         user.set_password(password)
         user.save()
+        
+        Cart.objects.create(user = user)
+        
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):

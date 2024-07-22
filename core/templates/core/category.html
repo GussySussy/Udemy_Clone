@@ -7,7 +7,7 @@
     <h1 class="mb-3">{{ category.name }}</h1>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-3">
         {% for course in courses %}
-        <a href = "{% url 'instructor:course' course.cid %}">
+        <a href="{% url 'instructor:course' course.cid %}">
         <div class="col">
             <div class="card h-100">
                 <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}" />
@@ -16,11 +16,15 @@
                     <p class="card-text">{{ course.subtitle }}</p>
                 </div>
                 <div class="card-footer">
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                    <form method="post" action="{% url 'cart_index' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="course_id" value="{{ course.cid }}">
+                        <button type="submit" class="btn btn-primary">Add to Cart</button>
+                    </form>
                 </div>
             </div>
         </div>
-    </a>
+        </a>
         {% endfor %}
     </div>
 </div>
