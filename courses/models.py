@@ -116,7 +116,7 @@ class Chapter(models.Model):
         Section, on_delete=models.CASCADE, related_name="chapters"
     )
     video = models.FileField(
-        upload_to="chapter_video_upload_to", blank=False, null=True
+        upload_to="chapter_video_upload_to", blank=True, null=True
     )
     content = models.TextField(blank=True, null=True)
 
