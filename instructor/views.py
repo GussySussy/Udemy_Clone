@@ -43,7 +43,6 @@ class CourseEdit(View):
             if section_form.is_valid():
                 section = section_form.save(commit=False)
                 section.course = course
-                # Set the sequence number
                 last_section = (
                     Section.objects.filter(course=course).order_by("sequence").last()
                 )
